@@ -12,23 +12,16 @@
 
 ## Providers
 
-| Name | Version |
-|------|---------|
-| <a name="provider_azurerm"></a> [azurerm](#provider\_azurerm) | ~> 3.71 |
+No providers.
 
 ## Resources
 
-| Name | Type |
-|------|------|
-| [azurerm_client_config.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/client_config) | data source |
+No resources.
 
 <!-- markdownlint-disable MD013 -->
 ## Inputs
 
-| Name | Description | Type | Default | Required |
-|------|-------------|------|---------|:--------:|
-| <a name="input_environment"></a> [environment](#input\_environment) | n/a | `string` | `"dev"` | no |
-| <a name="input_location"></a> [location](#input\_location) | n/a | `string` | `"uksouth"` | no |
+No inputs.
 
 ## Outputs
 

@@ -1,9 +1,9 @@
-variable "environment" {
-  type    = string
-  default = "dev"
-}
+# variable "environment" {
+#   type    = string
+#   default = "dev"
+# }
 
-variable "location" {
-  type    = string
-  default = "uksouth"
-}
+# variable "location" {
+#   type    = string
+#   default = "uksouth"
+# }
