@@ -8,8 +8,8 @@ sections:
   show: []
 
 content: |-
+  # Repository Documentation
   {{ .Header }}
-
   <!-- markdownlint-disable MD033 -->
   {{ .Requirements }}
 
@@ -60,4 +60,3 @@ settings:
   required: true
   sensitive: true
   type: true
-  
