@@ -8,8 +8,8 @@ sections:
   show: []
 
 content: |-
-  # Repository Documentation
   {{ .Header }}
+
   <!-- markdownlint-disable MD033 -->
   {{ .Requirements }}
 
@@ -39,7 +39,7 @@ output-values:
   from: ""
 
 recursive:
-  enabled: true
+  enabled: false
   path: modules
 
 sort:

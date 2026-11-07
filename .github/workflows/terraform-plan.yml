@@ -1,10 +1,12 @@
 name: terraform-plan
 
 on:
-    pull_request:
-        branches: [main]
-    push:
-        branches: [main]
+    workflow_dispatch:
+    # Replace this with your desired triggers, e.g., pull_request or push
+    #pull_request:
+    #    branches: [main]
+    #push:
+    #    branches: [main]
 
 permissions:
     id-token: write
@@ -14,42 +16,21 @@ concurrency:
     group: terraform-plan-${{ github.ref }}
     cancel-in-progress: true
 
-env:
-    ARM_USE_OIDC: true
-    ARM_USE_AZUREAD: true
-    # Target subscription for the azurerm provider
-    ARM_CLIENT_ID: ${{ vars.AZURE_CLIENT_ID }}
-    ARM_TENANT_ID: ${{ vars.AZURE_TENANT_ID }}
-    ARM_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID }}
-
 jobs:
     plan:
         runs-on: ubuntu-latest
+        env:
+            ARM_USE_OIDC: "true"
+            ARM_USE_AZUREAD: "true"
+            ARM_CLIENT_ID: ${{ vars.AZURE_CLIENT_ID }}
+            ARM_TENANT_ID: ${{ vars.AZURE_TENANT_ID }}
+            ARM_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID }}
         steps:
             - uses: actions/checkout@v4
 
-            - uses: hashicorp/setup-terraform@v3
-
-            - name: Terraform init
-              run: |
-                  terraform init \
-                    -backend-config="subscription_id=${{ vars.TFSTATE_SUBSCRIPTION_ID }}" \
-                    -backend-config="resource_group_name=${{ vars.TFSTATE_RESOURCE_GROUP }}" \
-                    -backend-config="storage_account_name=${{ vars.TFSTATE_STORAGE_ACCOUNT }}" \
-                    -backend-config="container_name=${{ vars.TFSTATE_CONTAINER }}" \
-                    -backend-config="key=${{ github.event.repository.name }}.tfstate"
-
-            - name: Terraform fmt
-              run: terraform fmt -check -recursive
-
-            - name: Terraform validate
-              run: terraform validate
-
-            - name: Terraform plan
-              run: terraform plan -input=false -out=tfplan
-
-            - name: Plan summary
-              run: |
-                  echo '```' >> "$GITHUB_STEP_SUMMARY"
-                  terraform show -no-color tfplan >> "$GITHUB_STEP_SUMMARY"
-                  echo '```' >> "$GITHUB_STEP_SUMMARY"
+            - uses: ./.github/actions/terraform-plan
+              with:
+                  tfstate_subscription_id: ${{ vars.TFSTATE_SUBSCRIPTION_ID }}
+                  tfstate_resource_group: ${{ vars.TFSTATE_RESOURCE_GROUP }}
+                  tfstate_storage_account: ${{ vars.TFSTATE_STORAGE_ACCOUNT }}
+                  tfstate_container: ${{ vars.TFSTATE_CONTAINER }}

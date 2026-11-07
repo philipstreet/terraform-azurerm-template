@@ -1,0 +1,38 @@
+name: Terraform Apply
+description: Download and apply a previously generated Terraform plan
+inputs:
+  tfstate_subscription_id:
+    description: Azure subscription containing the Terraform state
+    required: true
+  tfstate_resource_group:
+    description: Resource group containing the Terraform state
+    required: true
+  tfstate_storage_account:
+    description: Storage account containing the Terraform state
+    required: true
+  tfstate_container:
+    description: Blob container containing the Terraform state
+    required: true
+runs:
+  using: composite
+  steps:
+    - uses: hashicorp/setup-terraform@v3
+
+    - name: Terraform init
+      shell: bash
+      run: |
+        terraform init \
+          -backend-config="subscription_id=${{ inputs.tfstate_subscription_id }}" \
+          -backend-config="resource_group_name=${{ inputs.tfstate_resource_group }}" \
+          -backend-config="storage_account_name=${{ inputs.tfstate_storage_account }}" \
+          -backend-config="container_name=${{ inputs.tfstate_container }}" \
+          -backend-config="key=${{ github.event.repository.name }}.tfstate"
+
+    - name: Download plan
+      uses: actions/download-artifact@v4
+      with:
+        name: tfplan
+
+    - name: Terraform apply
+      shell: bash
+      run: terraform apply -input=false tfplan

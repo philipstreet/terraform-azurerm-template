@@ -1,0 +1,60 @@
+name: Terraform Plan
+description: Initialize Terraform, validate the configuration, and create a plan
+inputs:
+  upload_plan:
+    description: Upload the plan for a later apply job
+    required: false
+    default: "false"
+  tfstate_subscription_id:
+    description: Azure subscription containing the Terraform state
+    required: true
+  tfstate_resource_group:
+    description: Resource group containing the Terraform state
+    required: true
+  tfstate_storage_account:
+    description: Storage account containing the Terraform state
+    required: true
+  tfstate_container:
+    description: Blob container containing the Terraform state
+    required: true
+runs:
+  using: composite
+  steps:
+    - uses: hashicorp/setup-terraform@v3
+
+    - name: Terraform init
+      shell: bash
+      run: |
+        terraform init \
+          -backend-config="subscription_id=${{ inputs.tfstate_subscription_id }}" \
+          -backend-config="resource_group_name=${{ inputs.tfstate_resource_group }}" \
+          -backend-config="storage_account_name=${{ inputs.tfstate_storage_account }}" \
+          -backend-config="container_name=${{ inputs.tfstate_container }}" \
+          -backend-config="key=${{ github.event.repository.name }}.tfstate"
+
+    - name: Terraform fmt
+      shell: bash
+      run: terraform fmt -check -recursive
+
+    - name: Terraform validate
+      shell: bash
+      run: terraform validate
+
+    - name: Terraform plan
+      shell: bash
+      run: terraform plan -input=false -out=tfplan
+
+    - name: Plan summary
+      shell: bash
+      run: |
+        echo '```' >> "$GITHUB_STEP_SUMMARY"
+        terraform show -no-color tfplan >> "$GITHUB_STEP_SUMMARY"
+        echo '```' >> "$GITHUB_STEP_SUMMARY"
+
+    - name: Upload plan
+      if: ${{ inputs.upload_plan == 'true' }}
+      uses: actions/upload-artifact@v4
+      with:
+        name: tfplan
+        path: tfplan
+        retention-days: 7

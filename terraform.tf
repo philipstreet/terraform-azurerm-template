@@ -6,10 +6,9 @@ terraform {
     use_azuread_auth = true
   }
   required_providers {
-    # TODO: Ensure all required providers are listed here and the version property includes a constraint on the maximum major version.
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = "~> 5.0"
+      version = "~> 5.13"
     }
     # random = {
     #   source  = "hashicorp/random"
